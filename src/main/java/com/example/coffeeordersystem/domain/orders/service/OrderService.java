@@ -11,6 +11,8 @@ import com.example.coffeeordersystem.domain.user.repository.UserRepository;
 import com.example.coffeeordersystem.global.exception.BusinessException;
 import com.example.coffeeordersystem.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,10 @@ public class OrderService {
     private final MenuRepository menuRepository;
     private final OrderRepository orderRepository;
 
+    @Lazy
+    @Autowired
+    private OrderService self;
+
     private static final int MAX_RETRY_COUNT = 3;
 
     public Order placeOrder(Long userId, Long menuId) {
@@ -30,7 +36,7 @@ public class OrderService {
 
         while (attempt < MAX_RETRY_COUNT) {
             try {
-                return placeOrderInternal(userId, menuId);
+                return self.placeOrderInternal(userId, menuId);
             } catch (ObjectOptimisticLockingFailureException e) {
                 attempt++;
                 if (attempt >= MAX_RETRY_COUNT) {

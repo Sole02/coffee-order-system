@@ -2,6 +2,8 @@ package com.example.coffeeordersystem.domain.orders.service;
 
 import com.example.coffeeordersystem.domain.menus.entity.Menu;
 import com.example.coffeeordersystem.domain.menus.repository.MenuRepository;
+import com.example.coffeeordersystem.domain.orders.client.OrderDataCollectionClient;
+import com.example.coffeeordersystem.domain.orders.dto.external.OrderCollectRequest;
 import com.example.coffeeordersystem.domain.orders.dto.response.OrderResponse;
 import com.example.coffeeordersystem.domain.orders.entity.Order;
 import com.example.coffeeordersystem.domain.orders.entity.OrderStatus;
@@ -24,6 +26,7 @@ public class OrderService {
     private final UserRepository userRepository;
     private final MenuRepository menuRepository;
     private final OrderRepository orderRepository;
+    private final OrderDataCollectionClient orderDataCollectionClient;
 
     @Lazy
     @Autowired
@@ -56,6 +59,16 @@ public class OrderService {
 
         User user = userRepository.findById(order.getUserId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        orderDataCollectionClient.sendOrderData(new OrderCollectRequest(
+                order.getId(),
+                order.getUserId(),
+                order.getMenuId(),
+                menu.getName(),
+                order.getPrice(),
+                order.getStatus(),
+                order.getCreatedAt()
+        ));
 
         return new OrderResponse(
                 order.getId(),

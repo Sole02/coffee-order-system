@@ -8,3 +8,6 @@ spring:
   sql:
     init:
       mode: always
+
+data-collection:
+  base-url: http://localhost:8080
